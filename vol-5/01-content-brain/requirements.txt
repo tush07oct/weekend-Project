@@ -1,0 +1,17 @@
+# Content Brain
+#
+# Verified on Python 3.14.3 (macOS, arm64) with tesseract 5.5.0 on 2026-10-02.
+# Nothing here is needed for the default path. Install it only if you want the
+# optional --ai layer:
+#
+#   anthropic   breaks the close-call classifications, and reads images on a
+#               machine with no tesseract. Without it, build_board.py and ask.py
+#               both run end to end on the standard library alone.
+#
+# The OCR dependency is not a Python package. It is the tesseract CLI:
+#
+#   brew install tesseract
+#
+# and even that is optional: without it, images fall back to filename + sidecar.
+
+anthropic==0.69.0

@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Northbound motion</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0e1117; }
+  body { display: grid; place-items: center; font: 14px/1.5 system-ui, sans-serif; color: #9aa4b2; }
+  body.strip { display: block; }
+  body.strip .hint { display: none; }
+  canvas { display: block; width: min(96vw, 1280px); height: auto; aspect-ratio: 1280 / 720; }
+  .hint { position: fixed; bottom: 14px; left: 0; right: 0; text-align: center; opacity: .55; }
+</style>
+</head>
+<body>
+<canvas id="stage" width="1280" height="720"></canvas>
+<p class="hint">6.00s at 24fps, pace brisk. Click or press space to replay.</p>
+<script>
+const CFG = {
+  "brand": "Northbound",
+  "tagline": "Field notes for people who ship",
+  "pace": "brisk",
+  "width": 1280,
+  "height": 720,
+  "fps": 24,
+  "duration": 6.0,
+  "hold": 1.0,
+  "beats": [
+    "You shipped nothing this week.",
+    "Not because you ran out of time.",
+    "Because you never cut the third idea."
+  ],
+  "logo": "Northbound",
+  "mark": "N",
+  "colors": {
+    "bg": "#0e1117",
+    "ink": "#f4f1ea",
+    "muted": "#9aa4b2",
+    "accent": "#e4654a",
+    "accent2": "#6fd3c7"
+  },
+  "fonts": {
+    "display": "\"Avenir Next\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "body": "\"Iowan Old Style\", Georgia, \"Times New Roman\", serif"
+  },
+  "timeline": [
+    {
+      "id": "headline",
+      "label": "headline enters, per word",
+      "start": 0.5265,
+      "dur": 1.0529,
+      "ease": "anticipate"
+    },
+    {
+      "id": "rule",
+      "label": "accent rule wipes under headline",
+      "start": 0.9753,
+      "dur": 0.9476,
+      "ease": "easeInOutCubic"
+    },
+    {
+      "id": "support",
+      "label": "supporting line enters",
+      "start": 1.3425,
+      "dur": 1.0529,
+      "ease": "easeOutQuint"
+    },
+    {
+      "id": "kicker",
+      "label": "kicker line enters",
+      "start": 2.1585,
+      "dur": 1.0529,
+      "ease": "easeOutQuint"
+    },
+    {
+      "id": "lockup",
+      "label": "logo mark springs in",
+      "start": 3.5786,
+      "dur": 1.3161,
+      "ease": "easeOutElastic"
+    },
+    {
+      "id": "wordmark",
+      "label": "wordmark tracking contracts",
+      "start": 3.9471,
+      "dur": 1.0529,
+      "ease": "easeOutCubic"
+    }
+  ]
+};
+</script>
+<script>
+
+// ---- easing helpers -------------------------------------------------------
+// Every one of these is non-linear on purpose. `linear` is here only so you can
+// A/B it against the others and feel why nothing in the scene uses it.
+const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+function linear(p)          { return p; }
+function easeOutCubic(p)    { return 1 - Math.pow(1 - p, 3); }
+function easeInOutCubic(p)  { return p < 0.5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3) / 2; }
+function easeOutQuint(p)    { return 1 - Math.pow(1 - p, 5); }
+function easeOutBack(p)     { const c1 = 1.70158, c3 = c1 + 1;
+                              return 1 + c3*Math.pow(p - 1, 3) + c1*Math.pow(p - 1, 2); }
+function easeOutElastic(p)  { const c4 = (2*Math.PI) / 3;
+                              return p === 0 ? 0 : p === 1 ? 1
+                                   : Math.pow(2, -10*p) * Math.sin((p*10 - 0.75)*c4) + 1; }
+// Anticipation: pull back before you move. The first 18% of the cue drifts the
+// wrong way, then easeOutBack overshoots past the target and settles.
+function anticipate(p) {
+  if (p <= 0) return 0;
+  if (p >= 1) return 1;
+  const k = 0.18;
+  return p < k ? -0.10 * easeOutCubic(p / k) : easeOutBack((p - k) / (1 - k));
+}
+const EASE = { linear, easeOutCubic, easeInOutCubic, easeOutQuint,
+               easeOutBack, easeOutElastic, anticipate };
+
+const CUE = {};
+CFG.timeline.forEach(c => { CUE[c.id] = c; });
+
+// progress of a cue at time t, eased
+function at(t, id, offset) {
+  const c = CUE[id];
+  const start = c.start + (offset || 0);
+  return EASE[c.ease](clamp((t - start) / c.dur, 0, 1));
+}
+// raw, un-eased progress. Used for crossfades only, never for position.
+function raw(t, start, dur) { return clamp((t - start) / dur, 0, 1); }
+const mix = (a, b, p) => a + (b - a) * p;
+
+// ---- layout ---------------------------------------------------------------
+const C   = document.getElementById('stage');
+const ctx = C.getContext('2d');
+const W = CFG.width, H = CFG.height, D = CFG.duration;
+const K = CFG.colors, F = CFG.fonts;
+
+function withAlpha(hex, a) {
+  const h = hex.replace('#', '');
+  const n = h.length === 3 ? h.split('').map(c => c + c).join('') : h;
+  const r = parseInt(n.slice(0, 2), 16), g = parseInt(n.slice(2, 4), 16), b = parseInt(n.slice(4, 6), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+}
+
+// Wrap into lines of words, each word carrying its own x so it can be
+// animated independently. This is what makes the stagger possible.
+function layout(text, font, maxWidth) {
+  ctx.font = font;
+  const lines = [];
+  let cur = [], curW = 0;
+  const space = ctx.measureText(' ').width;
+  for (const word of text.split(/\s+/)) {
+    const w = ctx.measureText(word).width;
+    if (cur.length && curW + space + w > maxWidth) { lines.push(cur); cur = []; curW = 0; }
+    cur.push({ text: word, w: w });
+    curW += (cur.length > 1 ? space : 0) + w;
+  }
+  if (cur.length) lines.push(cur);
+  let index = 0;
+  for (const line of lines) {
+    let x = 0;
+    for (const word of line) { word.x = x; word.i = index++; x += word.w + space; }
+  }
+  lines.totalWords = index;
+  return lines;
+}
+
+// ---- the scene ------------------------------------------------------------
+function background(t) {
+  ctx.fillStyle = K.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // A dot grid that drifts across the whole runtime on easeInOutCubic, so the
+  // frame is never dead even while the type is holding.
+  const drift = easeInOutCubic(clamp(t / D, 0, 1));
+  const step = 46, off = mix(-step, 0, drift);
+  ctx.fillStyle = withAlpha(K.muted, 0.10);
+  for (let y = off; y < H + step; y += step) {
+    for (let x = off; x < W + step; x += step) {
+      ctx.beginPath(); ctx.arc(x, y, 1.1, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // A soft accent glow that eases up with the headline, then stays.
+  const glow = easeOutCubic(clamp((t - CUE.headline.start) / (CUE.headline.dur * 2), 0, 1));
+  const g = ctx.createRadialGradient(W * 0.18, H * 0.18, 0, W * 0.18, H * 0.18, W * 0.75);
+  g.addColorStop(0, withAlpha(K.accent, 0.20 * glow));
+  g.addColorStop(1, withAlpha(K.accent, 0));
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+}
+
+function typeBlock(t, text, opts) {
+  const lines = layout(text, opts.font, opts.maxWidth);
+  // Per-word stagger inside the cue, capped so a long headline never drags.
+  const perWord = Math.min(opts.cue.dur * 0.30, opts.cue.dur / Math.max(lines.totalWords, 1));
+  ctx.font = opts.font;
+  ctx.textBaseline = 'alphabetic';
+  lines.forEach((line, li) => {
+    const y = opts.y + li * opts.lineHeight;
+    for (const word of line) {
+      const p = at(t, opts.cue.id, word.i * perWord);
+      if (p <= 0 && t < opts.cue.start) continue;
+      const dy = mix(opts.rise, 0, p);
+      const alpha = clamp(p * 1.6, 0, 1) * opts.alpha;
+      if (alpha <= 0.001) continue;
+      ctx.fillStyle = withAlpha(opts.color, alpha);
+      ctx.fillText(word.text, opts.x + word.x, y + dy);
+    }
+  });
+  return opts.y + (lines.length - 1) * opts.lineHeight;
+}
+
+function accentRule(t, y, alpha) {
+  const p = at(t, 'rule');
+  if (p <= 0) return;
+  const w = mix(0, W * 0.26, p);
+  ctx.fillStyle = withAlpha(K.accent, alpha);
+  ctx.fillRect(W * 0.08, y, w, 5);
+}
+
+function lockup(t, alpha) {
+  const pop = at(t, 'lockup');
+  if (pop <= 0 && t < CUE.lockup.start) return;
+  if (alpha <= 0.001) return;
+  const cx = W / 2, cy = H / 2 - 10;
+  const size = mix(0, 112, pop);
+
+  // the mark: a rounded square that springs in and rotates home
+  const rot = mix(-0.22, 0, easeOutCubic(clamp((t - CUE.lockup.start) / CUE.lockup.dur, 0, 1)));
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot);
+  ctx.fillStyle = withAlpha(K.accent, alpha);
+  const r = 22, s = size / 2;
+  ctx.beginPath();
+  ctx.moveTo(-s + r, -s);
+  ctx.arcTo(s, -s, s, s, r);
+  ctx.arcTo(s, s, -s, s, r);
+  ctx.arcTo(-s, s, -s, -s, r);
+  ctx.arcTo(-s, -s, s, -s, r);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = withAlpha(K.bg, alpha);
+  ctx.font = '700 ' + Math.round(size * 0.52) + 'px ' + F.display;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(CFG.mark, 0, size * 0.03);
+  ctx.restore();
+
+  // the wordmark: letters start wide apart and contract into place
+  const wm = at(t, 'wordmark');
+  if (wm <= 0) return;
+  const track = mix(26, 2, wm);
+  ctx.font = '600 34px ' + F.display;
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  const chars = CFG.logo.split('');
+  const widths = chars.map(ch => ctx.measureText(ch).width);
+  const total = widths.reduce((a, b) => a + b, 0) + track * (chars.length - 1);
+  let x = cx - total / 2;
+  ctx.fillStyle = withAlpha(K.ink, alpha * clamp(wm * 1.4, 0, 1));
+  chars.forEach((ch, i) => { ctx.fillText(ch, x, cy + 108); x += widths[i] + track; });
+
+  if (CFG.tagline) {
+    const tp = easeOutCubic(clamp((t - CUE.wordmark.start - CUE.wordmark.dur * 0.4) / (CUE.wordmark.dur * 0.8), 0, 1));
+    ctx.font = 'italic 19px ' + F.body;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = withAlpha(K.muted, alpha * tp);
+    ctx.fillText(CFG.tagline, cx, cy + 142 + mix(8, 0, tp));
+  }
+}
+
+// Pure function of time. render.py depends on this: same t, same pixels.
+function drawFrame(t) {
+  t = clamp(t, 0, D);
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.textAlign = 'left';
+  background(t);
+
+  // Crossfade the copy out just before the lockup lands, so the two never fight.
+  const fade = raw(t, CUE.lockup.start - CUE.lockup.dur * 0.25, CUE.lockup.dur * 0.55);
+  const copy = 1 - easeInOutCubic(fade);
+
+  if (copy > 0.001) {
+    const bottom = typeBlock(t, CFG.beats[0], {
+      cue: CUE.headline, font: '700 72px ' + F.display, color: K.ink,
+      x: W * 0.08, y: H * 0.30, lineHeight: 84, maxWidth: W * 0.84,
+      rise: 46, alpha: copy,
+    });
+    accentRule(t, bottom + 34, copy);
+    typeBlock(t, CFG.beats[1], {
+      cue: CUE.support, font: '400 34px ' + F.body, color: K.muted,
+      x: W * 0.08, y: bottom + 104, lineHeight: 44, maxWidth: W * 0.72,
+      rise: 26, alpha: copy,
+    });
+    typeBlock(t, CFG.beats[2], {
+      cue: CUE.kicker, font: '600 28px ' + F.display, color: K.accent2,
+      x: W * 0.08, y: bottom + 164, lineHeight: 38, maxWidth: W * 0.72,
+      rise: 20, alpha: copy,
+    });
+  }
+  lockup(t, easeOutCubic(clamp(fade * 1.3, 0, 1)));
+}
+
+// ---- playback / capture ---------------------------------------------------
+const q = new URLSearchParams(location.search);
+
+if (q.get('strip')) {
+  // Deterministic filmstrip for render.py: frames stacked top to bottom in one
+  // page, one headless screenshot per strip. No animation clock involved.
+  const from = parseInt(q.get('from') || '0', 10);
+  const count = parseInt(q.get('count') || '1', 10);
+  const fps = parseFloat(q.get('fps') || CFG.fps);
+  C.width = W; C.height = H * count;
+  C.style.width = W + 'px'; C.style.height = (H * count) + 'px'; C.style.maxWidth = 'none';
+  document.body.classList.add('strip');
+  for (let k = 0; k < count; k++) {
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, k * H, W, H); ctx.clip();
+    ctx.translate(0, k * H);
+    drawFrame((from + k) / fps);
+    ctx.restore();
+  }
+  document.title = 'strip-ready';
+} else {
+  let t0 = null;
+  function tick(now) {
+    if (t0 === null) t0 = now;
+    drawFrame((now - t0) / 1000);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  function replay() { t0 = null; }
+  document.body.addEventListener('click', replay);
+  window.addEventListener('keydown', e => { if (e.code === 'Space') { e.preventDefault(); replay(); } });
+}
+
+</script>
+</body>
+</html>

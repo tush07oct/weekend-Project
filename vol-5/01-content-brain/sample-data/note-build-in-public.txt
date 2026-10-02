@@ -1,0 +1,3 @@
+Short script idea: read a folder of screenshots with the tesseract CLI, no API
+key, no pip install, and print what each one is about. Thirty lines of python.
+Good terminal demo because the output scrolls.

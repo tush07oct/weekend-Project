@@ -1,0 +1,14 @@
+{
+ "episode": 0,
+ "meta": {
+  "alpha": 0.2,
+  "crash_penalty": true,
+  "eps_end": 0.02,
+  "eps_start": 1.0,
+  "eval_best": 137,
+  "eval_mean": 81.13333333333334,
+  "gamma": 0.99,
+  "states": 0
+ },
+ "q": {}
+}

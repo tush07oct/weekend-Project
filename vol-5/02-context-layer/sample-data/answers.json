@@ -1,0 +1,155 @@
+{
+  "_note": "Canned interview answers for a made-up person, so the project demonstrates itself on first run. Replace with your own, or run init.py with no flags and answer out loud.",
+
+  "profile": {
+    "name": "Mira",
+    "where": "Lisbon, Portugal (WET/WEST)",
+    "work": "Product designer at a 40-person logistics startup, and I post about design on the side.",
+    "facts": [
+      "Designer for 9 years, the last 4 in logistics software",
+      "Two kids, 6 and 9",
+      "Deaf in the left ear, so I prefer written over calls",
+      "Runs on a 2021 MacBook Air, no second monitor"
+    ],
+    "units": [
+      "Metric only. Never convert to imperial.",
+      "Dates as 2026-03-14. Never 03/14/26.",
+      "Euros, no currency conversion.",
+      "English, British spelling."
+    ]
+  },
+
+  "work": {
+    "role": "Product designer owning the dispatcher-facing side of a logistics platform.",
+    "focus": [
+      "Redesign of the dispatch board, in build, ships end of Q2",
+      "Cutting the driver onboarding flow from 11 screens to 5",
+      "Writing the first version of our design system docs"
+    ],
+    "projects": [
+      "Dispatch board v3: design done, engineering 60% through, I review builds Tuesdays",
+      "Driver onboarding: research done, 3 concepts, no decision yet",
+      "Design system docs: 4 of 22 components written"
+    ],
+    "constraints": [
+      "No new engineering headcount until July",
+      "I work 09:00 to 15:30, school pickup is hard-stop",
+      "Dispatchers use the product 8 hours a day on 1366x768 screens",
+      "Anything touching driver pay needs legal review first"
+    ],
+    "people": [
+      "Tomas, my PM, decides scope, prefers one recommendation not three options",
+      "Ines, engineering lead on dispatch, will say yes to anything then run out of time",
+      "Hugo, head of ops, the actual customer, never reads documents longer than a page"
+    ],
+    "vocabulary": [
+      "Board = the dispatch board, the main screen, not a kanban",
+      "Leg = one pickup-to-dropoff segment of a shipment",
+      "Exception = a shipment that needs human attention right now",
+      "Tendering = offering a load to a carrier"
+    ],
+    "help": [
+      "Write like Hugo is reading it: one page, plain words, no design jargon",
+      "Give me one recommendation with the reasoning, not a menu",
+      "Assume dispatchers are experts and in a hurry, never explain the basics to them",
+      "If something needs legal review, say so before I get attached to it"
+    ]
+  },
+
+  "content": {
+    "channels": [
+      "Instagram, 2 carousels a week, design teardowns",
+      "A newsletter, every other Thursday, about 700 words",
+      "LinkedIn, reposts of the carousels, low effort on purpose"
+    ],
+    "audience": [
+      "Designers 2 to 6 years in, mostly outside the US",
+      "They want to get better at arguing for their work, not at Figma",
+      "They skim on a phone, standing up"
+    ],
+    "voice": [
+      "Short sentences. One idea per line.",
+      "Always a concrete example before the principle",
+      "Numbers instead of adjectives: 11 screens to 5, not 'much simpler'",
+      "First person, lowercase headlines, no exclamation marks"
+    ],
+    "pipeline": [
+      "Idea goes in a note on my phone during the week",
+      "Sunday: pick one, write the newsletter first",
+      "Carousel is cut down from the newsletter, never the reverse",
+      "Draft sits overnight before it goes out"
+    ],
+    "banned": [
+      "The words unlock, elevate, game-changer, delve",
+      "Hook-then-nothing openings",
+      "Threads of 12 posts where 3 would do",
+      "Captions that just repeat the slides"
+    ],
+    "help": [
+      "Cut, do not add. If a draft can be shorter, shorten it.",
+      "Flag any line that would apply to any designer anywhere",
+      "Keep my phrasing, do not rewrite me into a brand voice"
+    ]
+  },
+
+  "family": {
+    "household": [
+      "Me, my partner Dani, two kids, a flat in Alvalade",
+      "No car, everything is walking or metro"
+    ],
+    "people": [
+      "Dani, partner, nurse, rotating shifts including some nights",
+      "Luca, 9, swimming Tuesdays and Thursdays",
+      "Nora, 6, started school this year, still naps at weekends"
+    ],
+    "rhythms": [
+      "School run 08:15, pickup 15:45, both on me unless Dani is off",
+      "Dani works two weekends a month",
+      "Friday evenings are nothing-planned by rule",
+      "Grandparents visit the first weekend of each month"
+    ],
+    "care": [
+      "Nora's school is going badly, I do not want cheerful advice about it",
+      "My mother's health, mention only if I bring it up"
+    ],
+    "help": [
+      "Planning help should respect the 15:45 hard stop without being reminded",
+      "Suggest things reachable without a car",
+      "Short answers. I am usually typing this one-handed."
+    ]
+  },
+
+  "money": {
+    "setup": [
+      "Salary 3,400 EUR net monthly, paid on the 24th",
+      "Newsletter sponsorships, 200 to 600 EUR a month, irregular",
+      "Dani and I split fixed costs from a joint account, everything else separate",
+      "I do my own tax as a sole trader for the content income"
+    ],
+    "goals": [
+      "Six months of fixed costs in cash: 9,400 of 14,000 EUR saved",
+      "No debt except 640 EUR a month on the flat until 2039",
+      "Want the content income to cover a four-day week by 2028"
+    ],
+    "recurring": [
+      "Mortgage 640 EUR",
+      "Nursery and after-school 310 EUR",
+      "Utilities about 140 EUR",
+      "Software and subscriptions 68 EUR"
+    ],
+    "rules": [
+      "Nothing bought the same day I first want it",
+      "Sponsorship money goes straight to savings, it is not salary",
+      "I keep a 1,000 EUR buffer and do not count it as savings"
+    ],
+    "care": [
+      "No investing advice. I have decided what I am doing.",
+      "Do not suggest cutting the kids' activities."
+    ],
+    "help": [
+      "Do the arithmetic and show it, I will decide",
+      "Quote euros, never convert",
+      "If a plan assumes steady sponsorship income, say so out loud"
+    ]
+  }
+}

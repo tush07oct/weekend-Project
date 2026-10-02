@@ -1,0 +1,17 @@
+{
+  "name": "Northbound",
+  "tagline": "Field notes for people who ship",
+  "colors": {
+    "bg": "#0e1117",
+    "ink": "#f4f1ea",
+    "muted": "#9aa4b2",
+    "accent": "#e4654a",
+    "accent2": "#6fd3c7"
+  },
+  "fonts": {
+    "display": "\"Avenir Next\", \"Helvetica Neue\", Helvetica, Arial, sans-serif",
+    "body": "\"Iowan Old Style\", Georgia, \"Times New Roman\", serif"
+  },
+  "pace": "brisk",
+  "canvas": { "width": 1280, "height": 720, "fps": 24 }
+}

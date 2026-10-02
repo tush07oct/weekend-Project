@@ -1,0 +1,11 @@
+{
+  "name": "you",
+  "concerns": ["low iron"],
+  "goals": ["absorb more iron from plant meals", "keep calcium up without blocking iron"],
+  "diet": "mostly plant-based, eats fish sometimes",
+  "pantry": ["bell pepper", "lemon juice", "orange", "broccoli", "strawberries"],
+  "habits": {
+    "tea_or_coffee_with_meals": true,
+    "supplements": ["iron, every other morning"]
+  }
+}

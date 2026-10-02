@@ -1,0 +1,8 @@
+# Three lines in. Everything else is set once in brand.json.
+# Optional directives: duration (seconds), logo (lockup wordmark).
+duration: 6s
+logo: Northbound
+
+You shipped nothing this week.
+Not because you ran out of time.
+Because you never cut the third idea.

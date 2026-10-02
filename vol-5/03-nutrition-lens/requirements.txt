@@ -1,0 +1,11 @@
+# Nutrition Lens
+#
+# Verified on Python 3.14.3 (macOS, arm64) with NOTHING installed from this
+# file. The default path, typed foods, is standard library only.
+#
+#   anthropic  only used by the optional --ai photo path, where a vision model
+#              names the foods in an image. Matching, the rules, and every
+#              number printed stay local either way. Skip this install and the
+#              project still runs end to end on the sample data.
+
+anthropic>=1.0,<2
